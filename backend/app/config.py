@@ -20,6 +20,8 @@ class Settings:
         for origin in _get_env("CORS_ORIGINS", "http://localhost:5173").split(",")
         if origin.strip()
     ]
+    admin_username: str = _get_env("ADMIN_USERNAME", "admin")
+    admin_password: str = _get_env("ADMIN_PASSWORD", "admin123")
 
     @property
     def access_token_expires(self) -> timedelta:

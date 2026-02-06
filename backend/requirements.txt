@@ -7,3 +7,7 @@ opencv-python
 numpy
 pillow
 python-socketio[asgi]
+motor
+PyJWT
+passlib[bcrypt]
+python-dotenv

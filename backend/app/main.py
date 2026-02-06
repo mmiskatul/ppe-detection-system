@@ -1,38 +1,40 @@
-from fastapi import FastAPI, UploadFile, File
-from fastapi.responses import FileResponse, JSONResponse
-from app.detect import detect_image, detect_video
-import tempfile, shutil, os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="PPE Detection API")
+from app.config import settings
+from app.db import get_db
+from app.security import hash_password
+from app.routes import auth_router, users_router, analytics_router, detect_router
+from app.socket_server import create_socket_app
 
-@app.post("/detect/image")
-async def detect_image_endpoint(file: UploadFile = File(...)):
-    try:
-        suffix = os.path.splitext(file.filename)[1]
-        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-            shutil.copyfileobj(file.file, tmp)
-            tmp_path = tmp.name
 
-        annotated_image, detections, counts, output_path = detect_image(tmp_path, original_filename=os.path.splitext(file.filename)[0])
-        return {"output_path": output_path, "detections": detections, "summary": counts}
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+fastapi_app = FastAPI(title="PPE Detection Admin API")
 
-@app.post("/detect/video")
-async def detect_video_endpoint(file: UploadFile = File(...)):
-    try:
-        suffix = os.path.splitext(file.filename)[1]
-        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-            shutil.copyfileobj(file.file, tmp)
-            tmp_path = tmp.name
+fastapi_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-        output_path, counts = detect_video(tmp_path)
-        return {"output_path": output_path, "summary": counts}
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+fastapi_app.include_router(auth_router)
+fastapi_app.include_router(users_router)
+fastapi_app.include_router(analytics_router)
+fastapi_app.include_router(detect_router)
 
-@app.get("/download")
-async def download_file(path: str):
-    if os.path.exists(path):
-        return FileResponse(path)
-    return JSONResponse({"error": "File not found"}, status_code=404)
+@fastapi_app.on_event("startup")
+async def ensure_admin_user():
+    db = get_db()
+    existing = await db.users.find_one({"username": settings.admin_username})
+    if not existing:
+        await db.users.insert_one(
+            {
+                "username": settings.admin_username,
+                "password_hash": hash_password(settings.admin_password),
+                "role": "admin",
+                "is_active": True,
+            }
+        )
+
+app = create_socket_app(fastapi_app)
