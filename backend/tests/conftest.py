@@ -1,5 +1,6 @@
 import os
 import pytest
+import pytest_asyncio
 
 
 os.environ.setdefault("MONGO_URL", "mongodb://localhost:27017")
@@ -18,7 +19,7 @@ def event_loop():
     loop.close()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def db():
     from app.db import get_db
 
@@ -32,7 +33,7 @@ async def db():
     await database.incident_records.delete_many({})
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client(db):
     from httpx import AsyncClient
     from app.main import fastapi_app
