@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  font-family: "IBM Plex Sans", sans-serif;
+}
+
+.glow-card {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.18), rgba(249, 115, 22, 0.1));
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow: 0 20px 50px rgba(2, 6, 23, 0.45);
+}
+
+.grid-bg {
+  background-image: radial-gradient(circle at 1px 1px, rgba(148, 163, 184, 0.2) 1px, transparent 0);
+  background-size: 28px 28px;
+}
+
+.animate-kpi {
+  animation: kpiPulse 0.6s ease-out;
+}
+
+@keyframes kpiPulse {
+  0% {
+    transform: scale(0.98);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
