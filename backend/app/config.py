@@ -28,6 +28,7 @@ class Settings:
     ]
     admin_username: str = _get_env("ADMIN_USERNAME", "admin")
     admin_password: str = _get_env("ADMIN_PASSWORD", "admin123")
+    mongo_timeout_ms: int = int(_get_env("MONGO_TIMEOUT_MS", "5000"))
 
     @property
     def access_token_expires(self) -> timedelta:
