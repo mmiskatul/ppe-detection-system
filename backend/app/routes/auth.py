@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 
 from app.db import get_db
 from app.schemas import LoginRequest, TokenResponse, UserPublic

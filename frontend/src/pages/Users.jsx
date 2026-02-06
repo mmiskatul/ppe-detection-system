@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar.jsx";
 import api from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 export default function Users() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [form, setForm] = useState({ username: "", password: "", role: "admin" });
   const [error, setError] = useState("");
@@ -13,8 +15,13 @@ export default function Users() {
   };
 
   useEffect(() => {
+    const role = localStorage.getItem("role");
+    if (role !== "admin") {
+      navigate("/");
+      return;
+    }
     loadUsers();
-  }, []);
+  }, [navigate]);
 
   const handleChange = (event) => {
     setForm({ ...form, [event.target.name]: event.target.value });

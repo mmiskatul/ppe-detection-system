@@ -5,10 +5,21 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Users from "./pages/Users.jsx";
 
 const isAuthed = () => Boolean(localStorage.getItem("token"));
+const isAdmin = () => localStorage.getItem("role") === "admin";
 
 const RequireAuth = ({ children }) => {
   if (!isAuthed()) {
     return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
+const RequireAdmin = ({ children }) => {
+  if (!isAuthed()) {
+    return <Navigate to="/login" replace />;
+  }
+  if (!isAdmin()) {
+    return <Navigate to="/" replace />;
   }
   return children;
 };
@@ -28,9 +39,9 @@ export default function App() {
       <Route
         path="/users"
         element={
-          <RequireAuth>
+          <RequireAdmin>
             <Users />
-          </RequireAuth>
+          </RequireAdmin>
         }
       />
       <Route path="*" element={<Navigate to="/" replace />} />

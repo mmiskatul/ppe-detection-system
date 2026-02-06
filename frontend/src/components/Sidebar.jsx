@@ -8,9 +8,11 @@ const navLinkClass = ({ isActive }) =>
 
 export default function Sidebar() {
   const navigate = useNavigate();
+  const role = localStorage.getItem("role");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
     navigate("/login");
   };
 
@@ -24,9 +26,11 @@ export default function Sidebar() {
         <NavLink to="/" className={navLinkClass}>
           Dashboard
         </NavLink>
-        <NavLink to="/users" className={navLinkClass}>
-          Users
-        </NavLink>
+        {role === "admin" ? (
+          <NavLink to="/users" className={navLinkClass}>
+            Users
+          </NavLink>
+        ) : null}
       </nav>
       <button
         onClick={handleLogout}

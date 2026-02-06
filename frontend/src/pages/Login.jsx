@@ -19,6 +19,9 @@ export default function Login() {
     try {
       const { data } = await api.post("/auth/login", form);
       localStorage.setItem("token", data.access_token);
+      if (data.role) {
+        localStorage.setItem("role", data.role);
+      }
       navigate("/");
     } catch (err) {
       setError("Invalid credentials or inactive user.");
