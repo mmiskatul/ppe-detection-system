@@ -13,6 +13,8 @@ router = APIRouter(prefix="/users", tags=["users"])
 async def list_users():
     db = get_db()
     users = await db.users.find({}, {"password_hash": 0}).to_list(length=1000)
+    for user in users:
+        user["_id"] = str(user["_id"])
     return users
 
 
