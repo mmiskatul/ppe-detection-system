@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException, status
 
 from app.db import get_db
-from app.schemas import LoginRequest, TokenResponse
+from app.schemas import LoginRequest, TokenResponse, UserPublic
+from app.deps import get_current_user
 from app.security import create_access_token, verify_password
 
 
@@ -17,5 +18,12 @@ async def login(payload: LoginRequest):
     if not user.get("is_active", True):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Inactive user")
 
-    token = create_access_token({"sub": user["username"], "role": user.get("role", "admin")})
-    return TokenResponse(access_token=token)
+    role = user.get("role", "admin")
+    token = create_access_token({"sub": user["username"], "role": role})
+    return TokenResponse(access_token=token, role=role)
+
+
+@router.get("/me", response_model=UserPublic)
+async def me(current_user=Depends(get_current_user)):
+    current_user["_id"] = str(current_user["_id"])
+    return current_user
