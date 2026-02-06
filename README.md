@@ -50,3 +50,17 @@ npm run dev
 
 - Default admin credentials come from `ADMIN_USERNAME` and `ADMIN_PASSWORD`.
 - Realtime analytics update automatically on `prevention_saved`, `incident_saved`, and `analytics_updated`.
+
+## Tests
+
+```bash
+cd backend
+pytest
+```
+
+## Seed Data
+
+```bash
+cd backend
+python .\scripts\seed_data.py
+```

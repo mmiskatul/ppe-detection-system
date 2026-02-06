@@ -11,3 +11,6 @@ motor
 PyJWT
 passlib[bcrypt]
 python-dotenv
+pytest
+pytest-asyncio
+httpx

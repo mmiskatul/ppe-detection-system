@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from bson import ObjectId
 
 from app.db import get_db
 from app.deps import require_admin
@@ -34,3 +35,33 @@ async def create_user(payload: UserCreate):
     result = await db.users.insert_one(doc)
     doc["_id"] = str(result.inserted_id)
     return doc
+
+
+@router.patch("/{user_id}/activate", response_model=UserPublic, dependencies=[Depends(require_admin)])
+async def activate_user(user_id: str):
+    db = get_db()
+    result = await db.users.find_one_and_update(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"is_active": True}},
+        return_document=True,
+        projection={"password_hash": 0},
+    )
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    result["_id"] = str(result["_id"])
+    return result
+
+
+@router.patch("/{user_id}/deactivate", response_model=UserPublic, dependencies=[Depends(require_admin)])
+async def deactivate_user(user_id: str):
+    db = get_db()
+    result = await db.users.find_one_and_update(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"is_active": False}},
+        return_document=True,
+        projection={"password_hash": 0},
+    )
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    result["_id"] = str(result["_id"])
+    return result
