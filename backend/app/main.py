@@ -26,6 +26,13 @@ fastapi_app.include_router(detect_router)
 @fastapi_app.on_event("startup")
 async def ensure_admin_user():
     db = get_db()
+    try:
+        await db.command("ping")
+    except Exception as exc:
+        print(
+            "MongoDB connection failed. Check MONGO_URL and that MongoDB is running."
+        )
+        raise exc
     if len(settings.admin_password.encode("utf-8")) > 72:
         print("ADMIN_PASSWORD is longer than 72 bytes (bcrypt limit). Update .env and restart.")
         return
